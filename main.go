@@ -7,9 +7,12 @@ import (
 
 func main() {
 
-	x := model.NewCell(0, 1);
-	y := model.NewCell(0, 2);
+	// b := model.NewCell(0, 1);
 
-	x.Link(y, true);
-	fmt.Println(x);
+	g := model.NewGrid(2, 2);
+	fmt.Printf("%v", g);
+
+	for row := range g.Cells() {
+		fmt.Println(row);
+	}
 }

@@ -1,41 +1,50 @@
 package main
 
 import (
-	"github.com/llgcode/draw2d/draw2dimg"
-	"image"
 	_ "fmt"
-	_ "mazes/model"
-	"image/color"
 	_ "mazes/model"
 	"mazes/model"
 	"fmt"
 )
 
+type A struct {
+	foo int
+}
 
-func testdraw2dimg() {
-	dest := image.NewRGBA(image.Rect(0, 0, 50, 50));
-	gc := draw2dimg.NewGraphicContext(dest);
+func (a *A) blah() {
+	println("Foo!");
+}
 
-	// Set some properties
-	gc.SetStrokeColor(color.RGBA{0x00, 0x00, 0x00, 0xff});
-	gc.SetLineWidth(1)
+func (a *A) boop() {
+	println("Zoom!");
+}
 
-	// Draw a closed shape
-	gc.MoveTo(10, 10) // should always be called first for a new path
-	gc.LineTo(10, 20)
+type B struct {
+	*A
+	bar int
+}
 
-	gc.Close();
-	gc.FillStroke();
+func (b *B) blah() {
+	println("Bar!");
+}
 
-	draw2dimg.SaveToPngFile("hello.png", dest);
+
+func djikstra_test () {
+	g := model.NewDistanceGrid(5, 5);
+	model.BinaryTree(g);
+
+	start := g.GetCell(0, 0);
+	distances := start.Distances();
+
+	g.SetDistances(distances);
+	fmt.Println(g);
 }
 
 func main() {
-	// testdraw2dimg();
 
-
+	djikstra_test();
 	// Here's where our normal maze stuff begins.
-	g := model.NewGrid(5, 5);
+	g := model.NewBaseGrid(5, 5);
 
 	model.BinaryTree(g);
 	// model.Sidewinder(g);

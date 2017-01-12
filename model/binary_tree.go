@@ -4,7 +4,7 @@ import (
 	_ "fmt"
 )
 
-func BinaryTree (g *grid) {
+func BinaryTree (g grid) {
 	for c := range g.Cells() {
 		neighbors := make([]*cell, 0, 2);
 

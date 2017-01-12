@@ -1,7 +1,6 @@
 package model
 
 import (
-	_ "fmt"
 	"strconv"
 )
 
@@ -70,23 +69,24 @@ func hasAny (cells []*cell) bool {
 }
 
 // Part 1 of an implementation of Djikstra's graph search algorithm as applied to mazes.
-func (c *cell) Distances() {
-	d := NewDistances(c);
+func (c *cell) Distances() *Distances {
+	distances := NewDistances(c);
 	frontier := []*cell{c};
 
 	for hasAny(frontier) {
-		new_frontier := make([]*cell, 1);
+		new_frontier := []*cell{};
 
 		for _, celllllll := range(frontier) {
 			for _, linked := range(celllllll.Links()) {
-				_, ok := d.cells[linked]
-				if !ok {
+				_, ok := distances.cells[linked]
+				if ok {
 					continue
 				}
-				d.cells[linked] = d.cells[celllllll] + 1;
+				distances.cells[linked] = distances.cells[celllllll] + 1;
 				new_frontier = append(new_frontier, linked);
 			}
 		}
 		frontier = new_frontier;
 	}
+	return distances;
 }

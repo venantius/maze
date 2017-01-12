@@ -9,7 +9,7 @@ func max(x int, y int) int {
 	return y;
 }
 
-func Sidewinder(g *grid) {
+func Sidewinder(g *baseGrid) {
 	for row := range(g.Rows()) {
 		run := make([]*cell, 0, 4);
 

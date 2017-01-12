@@ -12,9 +12,19 @@ import (
 	"mazes/sketch"
 )
 
-const NEWLINE_DELIM string = "\n";
+const NEWLINE_DELIMITER string = "\n";
 
-type grid struct {
+type grid interface{
+	fmt.Stringer
+
+	getColumns() int
+
+	Rows() <-chan []*cell
+	Cells() <-chan *cell
+	contentsOf(*cell) string
+}
+
+type baseGrid struct {
 	rows 	int
 	columns int
 
@@ -22,8 +32,8 @@ type grid struct {
 }
 
 // Initialize a new grid and return a pointer to it.
-func NewGrid(rows int, columns int) *grid {
-	var g *grid = &grid {
+func NewBaseGrid(rows int, columns int) *baseGrid {
+	var g *baseGrid = &baseGrid{
 		rows: rows,
 		columns: columns,
 
@@ -33,7 +43,7 @@ func NewGrid(rows int, columns int) *grid {
 	return g
 }
 
-// Iterate through the
+// Iterate through the grid and initialize a cell struct for each grid element.
 func prepareGrid(rows int, columns int) [][]*cell {
 	grid := make([][]*cell, rows)
 	for i, _ := range(grid) {
@@ -49,14 +59,10 @@ func prepareGrid(rows int, columns int) [][]*cell {
 
 // This iterates through each cell in the grid, and for each cell attempts to set a north, east, south and west cell.
 // If the cell is at one of the grid's edges, it does not set the neighboring cell (leaving a nil pointer in place).
-func (g *grid) configureCells() {
+func (g *baseGrid) configureCells() {
 	for i, row := range(g.grid) {
 		for j, _ := range(row) {
 			var c *cell = g.grid[i][j];
-
-			if c.row + 1 < g.rows {
-
-			}
 
 			if c.row - 1 >= 0 {
 				c.north = g.grid[c.row - 1][c.column]
@@ -75,9 +81,13 @@ func (g *grid) configureCells() {
 
 }
 
+func (g *baseGrid) getColumns() int {
+	return g.columns;
+}
+
 // Retrieve a specific cell within the grid. If the request is for an out-of-bounds cell, returns nil.
 // NOTE: This latter capability may only exist to satisfy weird Ruby behavior.
-func (g *grid) GetCell(row int, column int) *cell {
+func (g *baseGrid) GetCell(row int, column int) *cell {
 	if (row >= 0 && row < g.rows) &&
 		(column >= 0 && column < g.columns) {
 		return g.grid[row][column]
@@ -86,18 +96,18 @@ func (g *grid) GetCell(row int, column int) *cell {
 }
 
 // Retrieve a random cell from the grid.
-func (g *grid) RandomCell() *cell {
+func (g *baseGrid) RandomCell() *cell {
 	var row int = rand.Intn(g.rows);
 	var column int = rand.Intn(g.columns);
 	return g.grid[row][column];
 }
 
 // How many cells are in this grid in total?
-func (g *grid) Size() int {
+func (g *baseGrid) Size() int {
 	return g.rows * g.columns;
 }
 
-func (g *grid) Rows() <-chan []*cell {
+func (g *baseGrid) Rows() <-chan []*cell {
 	ch := make(chan []*cell);
 	go func () {
 		for _, row := range g.grid {
@@ -108,7 +118,7 @@ func (g *grid) Rows() <-chan []*cell {
 	return ch;
 }
 
-func (g *grid) Cells() <-chan *cell {
+func (g *baseGrid) Cells() <-chan *cell {
 	ch := make(chan *cell, 1);
 	go func () {
 		for _, row := range g.grid {
@@ -121,16 +131,21 @@ func (g *grid) Cells() <-chan *cell {
 	return ch;
 }
 
+func (g *baseGrid) contentsOf(c *cell) string {
+	return " ";
+}
+
 // ASCII representation
-func (g *grid) String() string {
+func GridString(g grid) string {
+	fmt.Println("Used this method! 2")
 	var output bytes.Buffer
 
 	output.WriteString("+");
-	for i := 0; i < g.columns; i++ {
+	for i := 0; i < g.getColumns(); i++ {
 		output.WriteString("---+");
 
 	}
-	output.WriteString(NEWLINE_DELIM);
+	output.WriteString(NEWLINE_DELIMITER);
 
 	for row := range g.Rows() {
 		top := "|"
@@ -141,7 +156,7 @@ func (g *grid) String() string {
 				cell = NewCell(-1, -1) // TODO: I think this is un-necessary
 			}
 
-			body := "   " // three spaces
+			body := fmt.Sprintf(" %v ", g.contentsOf(cell));
 			var east_boundary string
 			if cell.IsLinked(cell.east) {
 				east_boundary = " "
@@ -158,20 +173,23 @@ func (g *grid) String() string {
 			} else {
 				south_boundary = "---"
 			}
-			corner := "+"
 
-			bottom += south_boundary + corner
+			bottom += south_boundary + "+"
 		}
-		output.WriteString(top + NEWLINE_DELIM);
-		output.WriteString(bottom + NEWLINE_DELIM);
+		output.WriteString(top + NEWLINE_DELIMITER);
+		output.WriteString(bottom + NEWLINE_DELIMITER);
 	}
 	return output.String();
+}
+
+func (g *baseGrid) String() string {
+	return GridString(g);
 }
 
 // func setImgBackground
 
 // PNG representation
-func (g *grid) ToPNG(cellSize int) {
+func (g *baseGrid) ToPNG(cellSize int) {
 	imgWidth := cellSize * g.columns;
 	imgHeight := cellSize * g.rows;
 
@@ -193,7 +211,6 @@ func (g *grid) ToPNG(cellSize int) {
 		x2 := (c.column + 1) * cellSize;
 		y2 := (c.row + 1) * cellSize;
 
-		fmt.Println(float64(x1), float64(y1), float64(x2), float64(y2));
 		if c.north == nil {
 			sketch.DrawLine(x1, y1, x2, y1, img, color.Black);
 		}

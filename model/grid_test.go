@@ -6,7 +6,7 @@ import (
 )
 
 func TestNewGrid(t *testing.T) {
-	x := NewGrid(2, 3);
+	x := NewBaseGrid(2, 3);
 	if x.rows != 2 {
 		t.Fail()
 	}

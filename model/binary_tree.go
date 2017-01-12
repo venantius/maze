@@ -1,14 +1,10 @@
 package model
 
 import (
-	"math/rand"
 	_ "fmt"
 )
 
-type BinaryTree struct {
-}
-
-func (bt *BinaryTree) On(g *grid) {
+func BinaryTree (g *grid) {
 	for c := range g.Cells() {
 		neighbors := make([]*cell, 0, 2);
 
@@ -20,7 +16,7 @@ func (bt *BinaryTree) On(g *grid) {
 		}
 
 		if len(neighbors) != 0 {
-			index := rand.Intn(len(neighbors));
+			index := RANDOM.Intn(len(neighbors));
 			neighbor := neighbors[index];
 			c.Link(neighbor, true);
 		}

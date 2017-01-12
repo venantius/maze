@@ -60,4 +60,33 @@ func (c *cell) String() string {
 	return output
 }
 
+func hasAny (cells []*cell) bool {
+	for _, c := range cells  {
+		if c != nil {
+			return true;
+		}
+	}
+	return false
+}
 
+// Part 1 of an implementation of Djikstra's graph search algorithm as applied to mazes.
+func (c *cell) Distances() {
+	d := NewDistances(c);
+	frontier := []*cell{c};
+
+	for hasAny(frontier) {
+		new_frontier := make([]*cell, 1);
+
+		for _, celllllll := range(frontier) {
+			for _, linked := range(celllllll.Links()) {
+				_, ok := d.cells[linked]
+				if !ok {
+					continue
+				}
+				d.cells[linked] = d.cells[celllllll] + 1;
+				new_frontier = append(new_frontier, linked);
+			}
+		}
+		frontier = new_frontier;
+	}
+}

@@ -1,4 +1,4 @@
-# Mazes
+# Maze
 
 This repository includes code for generating and solving mazes. The algorithms
 included are taken from [Mazes for Programmers](https://pragprog.com/book/jbmaze/mazes-for-programmers),

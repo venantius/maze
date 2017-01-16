@@ -33,5 +33,5 @@ func (d *distanceGrid) contentsOf (c *cell) string {
 }
 
 func (d *distanceGrid) String() string {
-	return GridString(d);
+	return gridString(d);
 }

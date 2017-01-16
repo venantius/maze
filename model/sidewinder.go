@@ -10,7 +10,7 @@ func max(x int, y int) int {
 }
 
 func Sidewinder(g *baseGrid) {
-	for row := range(g.Rows()) {
+	for row := range(g.RowIter()) {
 		run := make([]*cell, 0, 4);
 
 		for _, c := range row {

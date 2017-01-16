@@ -7,6 +7,7 @@ import (
 	"fmt"
 )
 
+// I find this stuff helpful for reasoning about field embedding in Go.
 type A struct {
 	foo int
 }
@@ -28,8 +29,17 @@ func (b *B) blah() {
 	println("Bar!");
 }
 
+func TestBaseGrid() {
+	g := model.NewBaseGrid(5, 5);
 
-func djikstra_test () {
+	model.BinaryTree(g);
+	// model.Sidewinder(g);
+
+	fmt.Println(g);
+	g.ToPNG("derp.png", 10);
+}
+
+func TestDjikstra () {
 	g := model.NewDistanceGrid(5, 5);
 	model.BinaryTree(g);
 
@@ -38,18 +48,40 @@ func djikstra_test () {
 
 	g.SetDistances(distances);
 	fmt.Println(g);
+
+	g.SetDistances(distances.PathTo(g.GetCell(g.GetRows() - 1, 0)));
+	fmt.Println(g);
+}
+
+func TestLongestPath() {
+	g := model.NewDistanceGrid(5, 5);
+	model.BinaryTree(g);
+
+	start := g.GetCell(0, 0);
+
+	distances := start.Distances();
+	new_start, _ := distances.Max();
+
+	new_distances := new_start.Distances();
+	goal, _ := new_distances.Max();
+
+	g.SetDistances(new_distances.PathTo(goal));
+	fmt.Println(g);
+	g.ToPNG("longest.png", 10);
+}
+
+func TestColoring() {
+	g := model.NewColoredGrid(25, 25);
+	model.BinaryTree(g);
+
+	start := g.GetCell(g.GetRows() / 2, g.GetColumns() / 2);
+
+	g.SetDistances(start.Distances());
+
+	filename := "colorized.png"
+	g.ToPNG(filename, 10)
 }
 
 func main() {
-
-	djikstra_test();
-	// Here's where our normal maze stuff begins.
-	g := model.NewBaseGrid(5, 5);
-
-	model.BinaryTree(g);
-	// model.Sidewinder(g);
-
-	fmt.Println(g);
-	g.ToPNG(10);
-
+	TestColoring();
 }

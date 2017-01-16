@@ -5,7 +5,7 @@ import (
 )
 
 func BinaryTree (g grid) {
-	for c := range g.Cells() {
+	for c := range g.CellIter() {
 		neighbors := make([]*cell, 0, 2);
 
 		if c.north != nil {

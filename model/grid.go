@@ -1,153 +1,45 @@
 package model
 
 import (
-	_ "fmt"
 	"image"
-	_ "image/color"
-	"math/rand"
 	"bytes"
 	"fmt"
 	"image/color"
 	"github.com/llgcode/draw2d/draw2dimg"
 	"mazes/sketch"
+	"image/draw"
 )
-
-const NEWLINE_DELIMITER string = "\n";
 
 type grid interface{
 	fmt.Stringer
 
-	getColumns() int
+	// Getters
+	GetColumns() int
+	GetRows() int
 
-	Rows() <-chan []*cell
-	Cells() <-chan *cell
+	// Iterators
+	RowIter() <-chan []*cell
+	CellIter() <-chan *cell
+
+	// Printing the maze
 	contentsOf(*cell) string
+	backgroundColorFor(*cell) color.Color
+	ToPNG(filename string, size int)
 }
 
-type baseGrid struct {
-	rows 	int
-	columns int
-
-	grid 	[][]*cell
-}
-
-// Initialize a new grid and return a pointer to it.
-func NewBaseGrid(rows int, columns int) *baseGrid {
-	var g *baseGrid = &baseGrid{
-		rows: rows,
-		columns: columns,
-
-		grid: prepareGrid(rows, columns),
-	}
-	g.configureCells()
-	return g
-}
-
-// Iterate through the grid and initialize a cell struct for each grid element.
-func prepareGrid(rows int, columns int) [][]*cell {
-	grid := make([][]*cell, rows)
-	for i, _ := range(grid) {
-		column := make([]*cell, columns)
-		grid[i] = column
-		for j, _ := range(column) {
-			c := NewCell(i, j);
-			grid[i][j] = c
-		}
-	}
-	return grid
-}
-
-// This iterates through each cell in the grid, and for each cell attempts to set a north, east, south and west cell.
-// If the cell is at one of the grid's edges, it does not set the neighboring cell (leaving a nil pointer in place).
-func (g *baseGrid) configureCells() {
-	for i, row := range(g.grid) {
-		for j, _ := range(row) {
-			var c *cell = g.grid[i][j];
-
-			if c.row - 1 >= 0 {
-				c.north = g.grid[c.row - 1][c.column]
-			}
-			if c.column + 1 < g.columns {
-				c.east  = g.grid[c.row][c.column + 1]
-			}
-			if c.row + 1 < g.rows {
-				c.south = g.grid[c.row + 1][c.column]
-			}
-			if c.column - 1 >=0 {
-				c.west  = g.grid[c.row][c.column - 1]
-			}
-		}
-	}
-
-}
-
-func (g *baseGrid) getColumns() int {
-	return g.columns;
-}
-
-// Retrieve a specific cell within the grid. If the request is for an out-of-bounds cell, returns nil.
-// NOTE: This latter capability may only exist to satisfy weird Ruby behavior.
-func (g *baseGrid) GetCell(row int, column int) *cell {
-	if (row >= 0 && row < g.rows) &&
-		(column >= 0 && column < g.columns) {
-		return g.grid[row][column]
-	}
-	return nil
-}
-
-// Retrieve a random cell from the grid.
-func (g *baseGrid) RandomCell() *cell {
-	var row int = rand.Intn(g.rows);
-	var column int = rand.Intn(g.columns);
-	return g.grid[row][column];
-}
-
-// How many cells are in this grid in total?
-func (g *baseGrid) Size() int {
-	return g.rows * g.columns;
-}
-
-func (g *baseGrid) Rows() <-chan []*cell {
-	ch := make(chan []*cell);
-	go func () {
-		for _, row := range g.grid {
-			ch <- row
-		}
-		close(ch);
-	} ();
-	return ch;
-}
-
-func (g *baseGrid) Cells() <-chan *cell {
-	ch := make(chan *cell, 1);
-	go func () {
-		for _, row := range g.grid {
-			for _, cell := range row {
-				ch <- cell
-			}
-		}
-		close(ch);
-	} ();
-	return ch;
-}
-
-func (g *baseGrid) contentsOf(c *cell) string {
-	return " ";
-}
 
 // ASCII representation
-func GridString(g grid) string {
-	fmt.Println("Used this method! 2")
+func gridString(g grid) string {
 	var output bytes.Buffer
 
 	output.WriteString("+");
-	for i := 0; i < g.getColumns(); i++ {
+	for i := 0; i < g.GetColumns(); i++ {
 		output.WriteString("---+");
 
 	}
 	output.WriteString(NEWLINE_DELIMITER);
 
-	for row := range g.Rows() {
+	for row := range g.RowIter() {
 		top := "|"
 		bottom := "+"
 
@@ -182,16 +74,10 @@ func GridString(g grid) string {
 	return output.String();
 }
 
-func (g *baseGrid) String() string {
-	return GridString(g);
-}
-
-// func setImgBackground
-
 // PNG representation
-func (g *baseGrid) ToPNG(cellSize int) {
-	imgWidth := cellSize * g.columns;
-	imgHeight := cellSize * g.rows;
+func gridToPNG(g grid, filename string, cellSize int) {
+	imgWidth := cellSize * g.GetColumns();
+	imgHeight := cellSize * g.GetRows();
 
 	// background := color.RGBA{0xff, 0xff, 0xff, 0xff};
 	// wall := color.RGBA{0x44, 0x44, 0x44, 0xff};
@@ -205,28 +91,47 @@ func (g *baseGrid) ToPNG(cellSize int) {
 		}
 	}
 
-	for c := range g.Cells() {
-		x1 := c.column * cellSize;
-		y1 := c.row * cellSize;
-		x2 := (c.column + 1) * cellSize;
-		y2 := (c.row + 1) * cellSize;
+	BACKGROUNDS := "backgrounds";
+	WALLS := "WALLS"
 
+	for _, mode := range []string{BACKGROUNDS, WALLS} {
+		for c := range g.CellIter() {
+			drawGrid(mode, g, c, img, cellSize);
+		}
+	}
+
+	draw2dimg.SaveToPngFile(filename, img);
+}
+
+var BACKGROUNDS string = "backgrounds"
+var WALLS string = "WALLS"
+
+// TODO: Turn MODE into an enum
+func drawGrid(mode string, g grid, c *cell, img draw.Image, cellSize int) {
+	x1 := c.column * cellSize;
+	y1 := c.row * cellSize;
+	x2 := (c.column + 1) * cellSize;
+	y2 := (c.row + 1) * cellSize;
+
+	if mode == BACKGROUNDS {
+		fmt.Println("Here!")
+		color := g.backgroundColorFor(c);
+		fmt.Println(color);
+		if color != nil {
+			sketch.DrawRectangle(x1, y1, x2, y2, img, color);
+		}
+	} else {
 		if c.north == nil {
 			sketch.DrawLine(x1, y1, x2, y1, img, color.Black);
 		}
-
 		if c.west == nil {
 			sketch.DrawLine(x1, y1, x1, y2, img, color.Black);
 		}
-
 		if !c.IsLinked(c.east) {
 			sketch.DrawLine(x2, y1, x2, y2, img, color.Black);
 		}
-
 		if !c.IsLinked(c.south) {
 			sketch.DrawLine(x1, y2, x2, y2, img, color.Black);
 		}
 	}
-
-	draw2dimg.SaveToPngFile("derp.png", img);
 }

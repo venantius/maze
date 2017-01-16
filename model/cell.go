@@ -52,6 +52,24 @@ func (c *Cell) IsLinked(other *Cell) bool {
 	return exists
 }
 
+// All non-nil neighboring cells, whether linked or not.
+func (c *Cell) Neighbors() []*Cell {
+	output := make([]*Cell, 0, 4);
+	if c.North != nil {
+		output = append(output, c.North);
+	}
+	if c.East != nil {
+		output = append(output, c.East);
+	}
+	if c.South != nil {
+		output = append(output, c.South);
+	}
+	if c.West != nil {
+		output = append(output, c.West);
+	}
+	return output;
+}
+
 // String representation.
 func (c *Cell) String() string {
 	output := "{:row " + strconv.Itoa(c.row);

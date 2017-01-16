@@ -43,7 +43,7 @@ func TestDjikstra () {
 	g := model.NewDistanceGrid(5, 5);
 	generator.BinaryTree(g);
 
-	start := g.GetCell(0, 0);
+	start := g.RandomCell();
 	distances := start.Distances();
 
 	g.SetDistances(distances);
@@ -82,6 +82,29 @@ func TestColoring() {
 	g.ToPNG(filename, 10)
 }
 
+func TestAldousBroder() {
+	g := model.NewBaseGrid(20, 20);
+	generator.AldousBroder(g);
+
+	filename := "aldous_broder.png"
+	g.ToPNG(filename, 10);
+}
+
+func TestAldousBroderColored() {
+	for i := 0; i < 6; i++ {
+		g := model.NewColoredGrid(20, 20);
+		generator.AldousBroder(g);
+
+		middle := g.GetCell(g.GetRows() / 2, g.GetColumns() / 2);
+		g.SetDistances(middle.Distances());
+
+		filename := fmt.Sprintf("aldous_broder_%v.png", i);
+		g.ToPNG(filename, 10);
+	}
+
+
+}
+
 func main() {
-	TestColoring();
+	TestAldousBroderColored();
 }

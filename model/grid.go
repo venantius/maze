@@ -22,6 +22,9 @@ type Grid interface{
 	GetColumns() int
 	GetRows() int
 
+	RandomCell() *Cell
+	Size() int
+
 	// Iterators
 	RowIter() <-chan []*Cell
 	CellIter() <-chan *Cell
@@ -89,12 +92,8 @@ func gridToPNG(g Grid, filename string, cellSize int) {
 
 	img := image.NewRGBA(image.Rect(0, 0, imgWidth + 1, imgHeight + 1));
 
-	// First, set the background
-	for x := 0; x <= imgWidth; x++ {
-		for y := 0; y <= imgHeight; y++ {
-			img.Set(x, y, color.RGBA{0xff, 0xff, 0xff, 0xff})
-		}
-	}
+	// First, set a white background.
+	sketch.DrawRectangle(0, 0, imgWidth + 1, imgHeight + 1, img, color.White);
 
 	for _, mode := range []int{BACKGROUNDS, WALLS} {
 		for c := range g.CellIter() {
@@ -112,9 +111,9 @@ func drawGrid(drawMode int, g Grid, c *Cell, img draw.Image, cellSize int) {
 	y2 := (c.row + 1) * cellSize;
 
 	if drawMode == BACKGROUNDS {
-		color := g.backgroundColorFor(c);
-		if color != nil {
-			sketch.DrawRectangle(x1, y1, x2, y2, img, color);
+		col := g.backgroundColorFor(c);
+		if col != nil {
+			sketch.DrawRectangle(x1, y1, x2, y2, img, col);
 		}
 	} else {
 		if c.North == nil {

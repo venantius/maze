@@ -4,6 +4,7 @@ import (
 	"image/color"
 	"image"
 	"maze/util"
+	"fmt"
 )
 
 type coloredGrid struct {
@@ -35,11 +36,23 @@ func (cg *coloredGrid) backgroundColorFor(c *Cell) color.Color {
 	var dark uint8 = uint8(util.Round(255 * intensity));
 	var bright uint8 = uint8(128 + util.Round(127 * intensity));
 
-	return color.RGBA{dark, bright, dark, 0xff};
+	return color.RGBA{dark, dark, bright, 0xff};
 }
 
 func (cg *coloredGrid) ToPNG(filename string, size int) {
+	cg.orderedDistances();
 	gridToPNG(cg, filename, size);
+}
+
+// TODO: Return an ordered list of cells by distance.
+func (cg *coloredGrid) orderedDistances() []*Cell {
+	var output []*Cell = make([]*Cell, 0);
+	fmt.Println(cg.distances);
+
+	for cell := range(cg.CellIter()) {
+		output = append(output, cell);
+	}
+	return output;
 }
 
 func ToGIF(g Grid, filename string, cellSize int) {
@@ -54,6 +67,14 @@ func ToGIF(g Grid, filename string, cellSize int) {
 	// TODO: Figure out how we want to palette this.
 	// Possibly we generate all of the images first...and then?
 	var pallette = []color.Color{};
+
+	for _, mode := range []int{BACKGROUNDS, WALLS} {
+		for c := range g.CellIter() {
+			img := image.NewPaletted(image.Rect(0, 0, imgWidth + 1, imgHeight + 1), pallette);
+			fmt.Println(mode, c, img);
+
+		}
+	}
 
 	for step := 0; step < steps; step++ {
 		img := image.NewPaletted(image.Rect(0, 0, imgWidth + 1, imgHeight + 1), pallette);

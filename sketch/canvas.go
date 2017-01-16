@@ -5,6 +5,7 @@ import (
 	"image/draw"
 )
 
+// TODO: This isn't actually correct, this will draw a rectangle, lol
 // Draw a line between two points
 func DrawLine(x1 int, y1 int, x2 int, y2 int, img draw.Image, color color.Color) {
 	var xmin, xmax, ymin, ymax int;

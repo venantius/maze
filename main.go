@@ -2,8 +2,8 @@ package main
 
 import (
 	_ "fmt"
-	_ "mazes/model"
-	"mazes/model"
+	"maze/model"
+	"maze/generator"
 	"fmt"
 )
 
@@ -32,7 +32,7 @@ func (b *B) blah() {
 func TestBaseGrid() {
 	g := model.NewBaseGrid(5, 5);
 
-	model.BinaryTree(g);
+	generator.BinaryTree(g);
 	// model.Sidewinder(g);
 
 	fmt.Println(g);
@@ -41,7 +41,7 @@ func TestBaseGrid() {
 
 func TestDjikstra () {
 	g := model.NewDistanceGrid(5, 5);
-	model.BinaryTree(g);
+	generator.BinaryTree(g);
 
 	start := g.GetCell(0, 0);
 	distances := start.Distances();
@@ -55,7 +55,7 @@ func TestDjikstra () {
 
 func TestLongestPath() {
 	g := model.NewDistanceGrid(5, 5);
-	model.BinaryTree(g);
+	generator.BinaryTree(g);
 
 	start := g.GetCell(0, 0);
 
@@ -71,8 +71,8 @@ func TestLongestPath() {
 }
 
 func TestColoring() {
-	g := model.NewColoredGrid(25, 25);
-	model.BinaryTree(g);
+	g := model.NewColoredGrid(75, 75);
+	generator.Sidewinder(g);
 
 	start := g.GetCell(g.GetRows() / 2, g.GetColumns() / 2);
 

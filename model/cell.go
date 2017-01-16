@@ -4,42 +4,42 @@ import (
 	"strconv"
 )
 
-type cell struct {
+type Cell struct {
 	column int
 	row    int
 
-	links  map[*cell]bool
+	links  map[*Cell]bool
 
-	north  *cell
-	east   *cell
-	south  *cell
-	west   *cell
+	North  *Cell
+	East   *Cell
+	South  *Cell
+	West   *Cell
 }
 
-func NewCell(row int, column int) *cell {
-	return & cell{
+func NewCell(row int, column int) *Cell {
+	return & Cell{
 		row: row,
 		column: column,
-		links: make(map[*cell]bool),
+		links: make(map[*Cell]bool),
 	}
 }
 
-func (c *cell) Link(other *cell, bidi bool) {
+func (c *Cell) Link(other *Cell, bidi bool) {
 	c.links[other] = true;
 	if (bidi == true) {
 		other.Link(c, false);
 	}
 }
 
-func (c *cell) Unlink(other *cell, bidi bool) {
+func (c *Cell) Unlink(other *Cell, bidi bool) {
 	delete(c.links, other)
 	if (bidi == true) {
 		other.Unlink(c, false);
 	}
 }
 
-func (c *cell) Links() []*cell {
-	var keys []*cell = make([]*cell, 0, len(c.links))
+func (c *Cell) Links() []*Cell {
+	var keys []*Cell = make([]*Cell, 0, len(c.links))
 	for k := range c.links {
 		keys = append(keys, k)
 	}
@@ -47,19 +47,21 @@ func (c *cell) Links() []*cell {
 }
 
 // Is this cell linked to the other cell?
-func (c *cell) IsLinked(other *cell) bool {
+func (c *Cell) IsLinked(other *Cell) bool {
 	_, exists := c.links[other]
 	return exists
 }
 
-func (c *cell) String() string {
+// String representation.
+func (c *Cell) String() string {
 	output := "{:row " + strconv.Itoa(c.row);
 	output += " :column " + strconv.Itoa(c.column);
 	output += "}"
 	return output
 }
 
-func hasAny (cells []*cell) bool {
+// Check to see if any of the *Cells in this slice are not nil. Akin to Ruby's `any?`
+func hasAny (cells []*Cell) bool {
 	for _, c := range cells  {
 		if c != nil {
 			return true;
@@ -69,20 +71,20 @@ func hasAny (cells []*cell) bool {
 }
 
 // Part 1 of an implementation of Djikstra's graph search algorithm as applied to mazes.
-func (c *cell) Distances() *Distances {
+func (c *Cell) Distances() *Distances {
 	distances := NewDistances(c);
-	frontier := []*cell{c};
+	frontier := []*Cell{c};
 
 	for hasAny(frontier) {
-		new_frontier := []*cell{};
+		new_frontier := []*Cell{};
 
-		for _, celllllll := range(frontier) {
-			for _, linked := range(celllllll.Links()) {
+		for _, cell := range(frontier) {
+			for _, linked := range(cell.Links()) {
 				_, ok := distances.cells[linked]
 				if ok {
 					continue
 				}
-				distances.cells[linked] = distances.cells[celllllll] + 1;
+				distances.cells[linked] = distances.cells[cell] + 1;
 				new_frontier = append(new_frontier, linked);
 			}
 		}

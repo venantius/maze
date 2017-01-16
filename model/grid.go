@@ -5,12 +5,17 @@ import (
 	"bytes"
 	"fmt"
 	"image/color"
-	"github.com/llgcode/draw2d/draw2dimg"
-	"mazes/sketch"
+	"maze/sketch"
 	"image/draw"
+	"github.com/llgcode/draw2d/draw2dimg"
 )
 
-type grid interface{
+const (
+	BACKGROUNDS = iota
+	WALLS
+)
+
+type Grid interface{
 	fmt.Stringer
 
 	// Getters
@@ -18,18 +23,18 @@ type grid interface{
 	GetRows() int
 
 	// Iterators
-	RowIter() <-chan []*cell
-	CellIter() <-chan *cell
+	RowIter() <-chan []*Cell
+	CellIter() <-chan *Cell
 
 	// Printing the maze
-	contentsOf(*cell) string
-	backgroundColorFor(*cell) color.Color
+	contentsOf(*Cell) string
+	backgroundColorFor(*Cell) color.Color
 	ToPNG(filename string, size int)
 }
 
 
 // ASCII representation
-func gridString(g grid) string {
+func gridString(g Grid) string {
 	var output bytes.Buffer
 
 	output.WriteString("+");
@@ -50,7 +55,7 @@ func gridString(g grid) string {
 
 			body := fmt.Sprintf(" %v ", g.contentsOf(cell));
 			var east_boundary string
-			if cell.IsLinked(cell.east) {
+			if cell.IsLinked(cell.East) {
 				east_boundary = " "
 			} else {
 				east_boundary = "|"
@@ -60,7 +65,7 @@ func gridString(g grid) string {
 
 			// three spaces below, too >> >...<
 			var south_boundary string
-			if cell.IsLinked(cell.south) {
+			if cell.IsLinked(cell.South) {
 				south_boundary = "   "
 			} else {
 				south_boundary = "---"
@@ -75,7 +80,7 @@ func gridString(g grid) string {
 }
 
 // PNG representation
-func gridToPNG(g grid, filename string, cellSize int) {
+func gridToPNG(g Grid, filename string, cellSize int) {
 	imgWidth := cellSize * g.GetColumns();
 	imgHeight := cellSize * g.GetRows();
 
@@ -91,10 +96,7 @@ func gridToPNG(g grid, filename string, cellSize int) {
 		}
 	}
 
-	BACKGROUNDS := "backgrounds";
-	WALLS := "WALLS"
-
-	for _, mode := range []string{BACKGROUNDS, WALLS} {
+	for _, mode := range []int{BACKGROUNDS, WALLS} {
 		for c := range g.CellIter() {
 			drawGrid(mode, g, c, img, cellSize);
 		}
@@ -103,34 +105,28 @@ func gridToPNG(g grid, filename string, cellSize int) {
 	draw2dimg.SaveToPngFile(filename, img);
 }
 
-var BACKGROUNDS string = "backgrounds"
-var WALLS string = "WALLS"
-
-// TODO: Turn MODE into an enum
-func drawGrid(mode string, g grid, c *cell, img draw.Image, cellSize int) {
+func drawGrid(drawMode int, g Grid, c *Cell, img draw.Image, cellSize int) {
 	x1 := c.column * cellSize;
 	y1 := c.row * cellSize;
 	x2 := (c.column + 1) * cellSize;
 	y2 := (c.row + 1) * cellSize;
 
-	if mode == BACKGROUNDS {
-		fmt.Println("Here!")
+	if drawMode == BACKGROUNDS {
 		color := g.backgroundColorFor(c);
-		fmt.Println(color);
 		if color != nil {
 			sketch.DrawRectangle(x1, y1, x2, y2, img, color);
 		}
 	} else {
-		if c.north == nil {
+		if c.North == nil {
 			sketch.DrawLine(x1, y1, x2, y1, img, color.Black);
 		}
-		if c.west == nil {
+		if c.West == nil {
 			sketch.DrawLine(x1, y1, x1, y2, img, color.Black);
 		}
-		if !c.IsLinked(c.east) {
+		if !c.IsLinked(c.East) {
 			sketch.DrawLine(x2, y1, x2, y2, img, color.Black);
 		}
-		if !c.IsLinked(c.south) {
+		if !c.IsLinked(c.South) {
 			sketch.DrawLine(x1, y2, x2, y2, img, color.Black);
 		}
 	}

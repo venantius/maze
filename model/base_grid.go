@@ -3,7 +3,6 @@ package model
 import (
 	"math/rand"
 	"image/color"
-	"fmt"
 )
 
 const NEWLINE_DELIMITER string = "\n";
@@ -12,7 +11,7 @@ type baseGrid struct {
 	rows 	int
 	columns int
 
-	grid 	[][]*cell
+	grid 	[][]*Cell
 }
 
 // Initialize a new grid and return a pointer to it.
@@ -28,10 +27,10 @@ func NewBaseGrid(rows int, columns int) *baseGrid {
 }
 
 // Iterate through the grid and initialize a cell struct for each grid element.
-func prepareGrid(rows int, columns int) [][]*cell {
-	grid := make([][]*cell, rows)
+func prepareGrid(rows int, columns int) [][]*Cell {
+	grid := make([][]*Cell, rows)
 	for i, _ := range(grid) {
-		column := make([]*cell, columns)
+		column := make([]*Cell, columns)
 		grid[i] = column
 		for j, _ := range(column) {
 			c := NewCell(i, j);
@@ -46,19 +45,19 @@ func prepareGrid(rows int, columns int) [][]*cell {
 func (g *baseGrid) configureCells() {
 	for i, row := range(g.grid) {
 		for j, _ := range(row) {
-			var c *cell = g.grid[i][j];
+			var c *Cell = g.grid[i][j];
 
 			if c.row - 1 >= 0 {
-				c.north = g.grid[c.row - 1][c.column]
+				c.North = g.grid[c.row - 1][c.column]
 			}
 			if c.column + 1 < g.columns {
-				c.east  = g.grid[c.row][c.column + 1]
+				c.East = g.grid[c.row][c.column + 1]
 			}
 			if c.row + 1 < g.rows {
-				c.south = g.grid[c.row + 1][c.column]
+				c.South = g.grid[c.row + 1][c.column]
 			}
 			if c.column - 1 >=0 {
-				c.west  = g.grid[c.row][c.column - 1]
+				c.West = g.grid[c.row][c.column - 1]
 			}
 		}
 	}
@@ -77,7 +76,7 @@ func (g *baseGrid) GetRows() int {
 
 // Retrieve a specific cell within the grid. If the request is for an out-of-bounds cell, returns nil.
 // NOTE: This latter capability may only exist to satisfy weird Ruby behavior.
-func (g *baseGrid) GetCell(row int, column int) *cell {
+func (g *baseGrid) GetCell(row int, column int) *Cell {
 	if (row >= 0 && row < g.rows) &&
 		(column >= 0 && column < g.columns) {
 		return g.grid[row][column]
@@ -86,7 +85,7 @@ func (g *baseGrid) GetCell(row int, column int) *cell {
 }
 
 // Retrieve a random cell from the grid.
-func (g *baseGrid) RandomCell() *cell {
+func (g *baseGrid) RandomCell() *Cell {
 	var row int = rand.Intn(g.rows);
 	var column int = rand.Intn(g.columns);
 	return g.grid[row][column];
@@ -97,8 +96,8 @@ func (g *baseGrid) Size() int {
 	return g.rows * g.columns;
 }
 
-func (g *baseGrid) RowIter() <-chan []*cell {
-	ch := make(chan []*cell);
+func (g *baseGrid) RowIter() <-chan []*Cell {
+	ch := make(chan []*Cell);
 	go func () {
 		for _, row := range g.grid {
 			ch <- row
@@ -108,8 +107,8 @@ func (g *baseGrid) RowIter() <-chan []*cell {
 	return ch;
 }
 
-func (g *baseGrid) CellIter() <-chan *cell {
-	ch := make(chan *cell, 1);
+func (g *baseGrid) CellIter() <-chan *Cell {
+	ch := make(chan *Cell, 1);
 	go func () {
 		for _, row := range g.grid {
 			for _, cell := range row {
@@ -125,12 +124,11 @@ func (g *baseGrid) CellIter() <-chan *cell {
 Satisfying the Grid interface.
  */
 
-func (g *baseGrid) contentsOf(c *cell) string {
+func (g *baseGrid) contentsOf(c *Cell) string {
 	return " ";
 }
 
-func (g *baseGrid) backgroundColorFor(*cell) color.Color {
-	fmt.Println("unfortunately...")
+func (g *baseGrid) backgroundColorFor(*Cell) color.Color {
 	return nil;
 }
 

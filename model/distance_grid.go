@@ -22,7 +22,7 @@ func (d *distanceGrid) SetDistances(dist *Distances) {
 	d.distances = dist;
 }
 
-func (d *distanceGrid) contentsOf (c *cell) string {
+func (d *distanceGrid) contentsOf (c *Cell) string {
 	if d.distances != nil {
 		_, ok := d.distances.cells[c];
 		if ok {

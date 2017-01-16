@@ -1,12 +1,12 @@
 package model
 
 type Distances struct {
-	root	*cell
-	cells	map[*cell]int
+	root	*Cell
+	cells	map[*Cell]int
 }
 
-func NewDistances(root *cell) *Distances {
-	c := make(map[*cell]int);
+func NewDistances(root *Cell) *Distances {
+	c := make(map[*Cell]int);
 	c[root] = 0;
 	return &Distances {
 		root: root,
@@ -14,8 +14,8 @@ func NewDistances(root *cell) *Distances {
 	}
 }
 
-func (d *Distances) Cells () <-chan *cell {
-	ch := make(chan *cell, 1);
+func (d *Distances) Cells () <-chan *Cell {
+	ch := make(chan *Cell, 1);
 	go func() {
 		for c, _ := range(d.cells) {
 			ch <- c
@@ -26,7 +26,7 @@ func (d *Distances) Cells () <-chan *cell {
 }
 
 // Return a new Distances with the shortest path between the root *cell of this distances and the goal *cell, provided.
-func (d *Distances) PathTo(goal *cell) *Distances {
+func (d *Distances) PathTo(goal *Cell) *Distances {
 	current := goal;
 
 	breadcrumbs := NewDistances(current);
@@ -45,7 +45,7 @@ func (d *Distances) PathTo(goal *cell) *Distances {
 }
 
 // Which cell is furthest away from the root?
-func (d *Distances) Max() (*cell, int) {
+func (d *Distances) Max() (*Cell, int) {
 	maxDistance := 0;
 	maxCell := d.root;
 

@@ -2,8 +2,8 @@ package model
 
 import (
 	"image/color"
-	"fmt"
 	"image"
+	"maze/util"
 )
 
 type coloredGrid struct {
@@ -26,15 +26,14 @@ func (cg *coloredGrid) SetDistances(d *Distances) {
 	_, cg.maximum = d.Max();
 }
 
-func (cg *coloredGrid) backgroundColorFor(c *cell) color.Color {
-	fmt.Println("Yep, this is the one!")
+func (cg *coloredGrid) backgroundColorFor(c *Cell) color.Color {
 	distance, ok := cg.distances.cells[c];
 	if !ok {
 		return nil;
 	}
 	var intensity float64 = float64(cg.maximum - distance) / float64(cg.maximum);
-	var dark uint8 = uint8(round(255 * intensity));
-	var bright uint8 = uint8(128 + round(127 * intensity));
+	var dark uint8 = uint8(util.Round(255 * intensity));
+	var bright uint8 = uint8(128 + util.Round(127 * intensity));
 
 	return color.RGBA{dark, bright, dark, 0xff};
 }
@@ -43,7 +42,7 @@ func (cg *coloredGrid) ToPNG(filename string, size int) {
 	gridToPNG(cg, filename, size);
 }
 
-func ToGIF(g grid, filename string, cellSize int) {
+func ToGIF(g Grid, filename string, cellSize int) {
 	imgWidth := cellSize * g.GetColumns();
 	imgHeight := cellSize * g.GetRows();
 
@@ -52,7 +51,7 @@ func ToGIF(g grid, filename string, cellSize int) {
 
 	var steps int = g.GetRows() * g.GetColumns();
 
-	// TODO: Figure out how we want to pallette this.
+	// TODO: Figure out how we want to palette this.
 	// Possibly we generate all of the images first...and then?
 	var pallette = []color.Color{};
 

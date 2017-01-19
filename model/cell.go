@@ -2,6 +2,7 @@ package model
 
 import (
 	"strconv"
+	"maze/util"
 )
 
 type Cell struct {
@@ -78,22 +79,14 @@ func (c *Cell) String() string {
 	return output
 }
 
-// Check to see if any of the *Cells in this slice are not nil. Akin to Ruby's `any?`
-func hasAny (cells []*Cell) bool {
-	for _, c := range cells  {
-		if c != nil {
-			return true;
-		}
-	}
-	return false
-}
+
 
 // Part 1 of an implementation of Djikstra's graph search algorithm as applied to mazes.
 func (c *Cell) Distances() *Distances {
 	distances := NewDistances(c);
 	frontier := []*Cell{c};
 
-	for hasAny(frontier) {
+	for SliceHasAny(frontier) {
 		new_frontier := []*Cell{};
 
 		for _, cell := range(frontier) {
@@ -109,4 +102,33 @@ func (c *Cell) Distances() *Distances {
 		frontier = new_frontier;
 	}
 	return distances;
+}
+
+// Utility functions for working with slices of *Cell structs
+
+// Check to see if any of the *Cells in this slice are not nil. Akin to Ruby's `any?`
+func SliceHasAny (cells []*Cell) bool {
+	for _, c := range cells  {
+		if c != nil {
+			return true;
+		}
+	}
+	return false
+}
+
+func RandomSliceElement (cells []*Cell) *Cell {
+	return cells[util.RANDOM.Intn(len(cells))];
+}
+
+func IndexOf(cells []*Cell, cell *Cell) int {
+	for i, elem := range(cells) {
+		if elem == cell {
+			return i;
+		}
+	}
+	return -1;
+}
+
+func DoesSliceInclude (cells []*Cell, cell *Cell) bool {
+	return IndexOf(cells, cell) != -1;
 }

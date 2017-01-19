@@ -32,8 +32,8 @@ func (b *B) blah() {
 func TestBaseGrid() {
 	g := model.NewBaseGrid(5, 5);
 
-	generator.BinaryTree(g);
-	// model.Sidewinder(g);
+	// generator.BinaryTree(g);
+	generator.Sidewinder(g);
 
 	fmt.Println(g);
 	g.ToPNG("derp.png", 10);
@@ -91,20 +91,35 @@ func TestAldousBroder() {
 }
 
 func TestAldousBroderColored() {
-	for i := 0; i < 6; i++ {
-		g := model.NewColoredGrid(20, 20);
-		generator.AldousBroder(g);
+	g := model.NewColoredGrid(20, 20);
+	generator.AldousBroder(g);
 
-		middle := g.GetCell(g.GetRows() / 2, g.GetColumns() / 2);
-		g.SetDistances(middle.Distances());
+	middle := g.GetCell(g.GetRows() / 2, g.GetColumns() / 2);
+	g.SetDistances(middle.Distances());
 
-		filename := fmt.Sprintf("aldous_broder_%v.png", i);
-		g.ToPNG(filename, 10);
-	}
+	filename := "aldous_broder_colored.png"
+	g.ToPNG(filename, 10);
+}
 
+func TestWilsons() {
+	g := model.NewBaseGrid(20, 20);
+	generator.Wilsons(g);
 
+	filename := "wilsons.png";
+	g.ToPNG(filename, 10);
+}
+
+func TestWilsonsColored() {
+	g := model.NewColoredGrid(40, 40);
+	generator.Wilsons(g);
+
+	random := g.RandomCell();
+	g.SetDistances(random.Distances());
+
+	filename := "wilsons_colored.png";
+	g.ToPNG(filename, 10);
 }
 
 func main() {
-	TestAldousBroderColored();
+	TestBaseGrid();
 }

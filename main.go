@@ -121,5 +121,5 @@ func TestWilsonsColored() {
 }
 
 func main() {
-	TestBaseGrid();
+	TestWilsonsColored();
 }

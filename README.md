@@ -10,13 +10,12 @@ This README covers the basics of how to work with this library and what sort of 
 
 ## Grids
 
-Grids are the basic "objects" of mazes. The general usage pattern here is to
-create a grid and then to apply a maze generation algorithm to it.
+Grids are the basic "objects" of mazes. The general usage pattern is to
+create a grid and then to apply a maze generation algorithm to it. From there, you can run additional algorithms, for instance to determine the shortest or longest path from one point in the maze to another.
 
 ### BaseGrid
 
-The most basic type of grid in this library is a BaseGrid. You can see how it works
-as follows:
+The most basic type of grid in this library is a `BaseGrid`. You can see how it works as follows:
 
 ```golang
 import (
@@ -65,7 +64,4 @@ This will generate an image that looks like the following:
 
 ### ColoredGrid
 
-If you want to generate colored PNG images of your mazes, use the `ColoredGrid` struct instead of `BaseGrid`, like so:
-
-
-
+If you want to generate colored PNG images of your mazes, use the `ColoredGrid` struct instead of `BaseGrid`, like so (EXAMPLE TO FOLLOW)

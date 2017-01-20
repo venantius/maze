@@ -3,7 +3,6 @@ package generator
 import (
 	"maze/model"
 	"maze/util"
-	"fmt"
 )
 
 func Wilsons(g model.Grid) {
@@ -14,12 +13,9 @@ func Wilsons(g model.Grid) {
 		unvisited = append(unvisited, cell);
 	}
 
-	fmt.Println(len(unvisited));
-
 	// Pick a random unvisited node and mark it visited.
 	index := util.RANDOM.Intn(len(unvisited));
 	unvisited = append(unvisited[:index], unvisited[index+1:]...)
-	fmt.Println(len(unvisited));
 
 
 	// While any cells are unvisited...
@@ -35,15 +31,12 @@ func Wilsons(g model.Grid) {
 
 			position := model.IndexOf(path, cell);
 			if position != -1 {
-				path = path[0:position]
+				path = path[0:position+1]
 			} else {
 				path = append(path, cell);
 			}
 
 		}
-
-		fmt.Println(len(unvisited));
-
 
 		for i := 0; i < len(path) - 1; i++ {
 			path[i].Link(path[i+1], true);

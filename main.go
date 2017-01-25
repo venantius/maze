@@ -7,36 +7,32 @@ import (
 	"fmt"
 )
 
-// I find this stuff helpful for reasoning about field embedding in Go.
-type A struct {
-	foo int
+func TestAlgorithm(algo generator.MazeGen) {
+	g := model.NewBaseGrid(30, 30);
+	algo(g);
+
+	filename := "maze.png";
+	g.ToPNG(filename, 10);
 }
 
-func (a *A) blah() {
-	println("Foo!");
+func FindLongestPath(g model.IDistanceGrid) {
+	random := g.RandomCell();
+	distances := random.Distances();
+	new_start, _ := distances.Max(); // furthest cell from our random cell
+
+	new_distances := new_start.Distances();
+
+	g.SetDistances(new_distances);
 }
 
-func (a *A) boop() {
-	println("Zoom!");
-}
+func TestAlgorithmColored(algo generator.MazeGen) {
+	g := model.NewColoredGrid(30, 30);
+	algo(g);
 
-type B struct {
-	*A
-	bar int
-}
+	FindLongestPath(g);
 
-func (b *B) blah() {
-	println("Bar!");
-}
-
-func TestBaseGrid() {
-	g := model.NewBaseGrid(5, 5);
-
-	// generator.BinaryTree(g);
-	generator.Sidewinder(g);
-
-	fmt.Println(g);
-	g.ToPNG("derp.png", 10);
+	filename := "colored_maze.png";
+	g.ToPNG(filename, 10);
 }
 
 func TestDjikstra () {
@@ -63,63 +59,61 @@ func TestLongestPath() {
 	new_start, _ := distances.Max();
 
 	new_distances := new_start.Distances();
-	goal, _ := new_distances.Max();
 
-	g.SetDistances(new_distances.PathTo(goal));
+	g.SetDistances(new_distances);
 	fmt.Println(g);
 	g.ToPNG("longest.png", 10);
 }
 
-func TestColoring() {
-	g := model.NewColoredGrid(75, 75);
-	generator.Sidewinder(g);
+func TestBinaryTree() {
+	TestAlgorithm(generator.BinaryTree);
+}
 
-	start := g.GetCell(g.GetRows() / 2, g.GetColumns() / 2);
-
-	g.SetDistances(start.Distances());
-
-	filename := "colorized.png"
-	g.ToPNG(filename, 10)
+func TestSidewinder() {
+	TestAlgorithm(generator.Sidewinder);
 }
 
 func TestAldousBroder() {
-	g := model.NewBaseGrid(20, 20);
-	generator.AldousBroder(g);
-
-	filename := "aldous_broder.png"
-	g.ToPNG(filename, 10);
+	TestAlgorithm(generator.AldousBroder);
 }
 
 func TestAldousBroderColored() {
-	g := model.NewColoredGrid(20, 20);
-	generator.AldousBroder(g);
-
-	middle := g.GetCell(g.GetRows() / 2, g.GetColumns() / 2);
-	g.SetDistances(middle.Distances());
-
-	filename := "aldous_broder_colored.png"
-	g.ToPNG(filename, 10);
+	TestAlgorithmColored(generator.AldousBroder);
 }
 
 func TestWilsons() {
-	g := model.NewBaseGrid(20, 20);
-	generator.Wilsons(g);
-
-	filename := "wilsons.png";
-	g.ToPNG(filename, 10);
+	TestAlgorithm(generator.Wilsons);
 }
 
 func TestWilsonsColored() {
-	g := model.NewColoredGrid(40, 40);
-	generator.Wilsons(g);
+	TestAlgorithmColored(generator.Wilsons);
+}
 
-	random := g.RandomCell();
-	g.SetDistances(random.Distances());
+func TestHuntAndKill() {
+	TestAlgorithm(generator.HuntAndKill);
+}
 
-	filename := "wilsons_colored.png";
-	g.ToPNG(filename, 10);
+func TestHuntAndKillColored() {
+	TestAlgorithmColored(generator.HuntAndKill);
 }
 
 func main() {
-	TestWilsonsColored();
+	g := model.NewDistanceGrid(5, 5)
+
+	// Apply the Binary Tree maze generation algorithm
+	generator.BinaryTree(g)
+
+	// Pick a random starting cell, or any cell you want.
+	start := g.RandomCell();
+
+	// Calculate the shortest path between the starting cell and all other cells.
+	distances := start.Distances();
+	g.SetDistances(distances);
+
+	// Print to stdout
+	fmt.Println(g)
+
+	g.SetDistances(distances.PathTo(g.GetCell(g.GetRows() - 1, 0)));
+	fmt.Println(g);
 }
+

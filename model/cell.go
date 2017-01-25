@@ -116,6 +116,8 @@ func SliceHasAny (cells []*Cell) bool {
 	return false
 }
 
+
+
 func RandomSliceElement (cells []*Cell) *Cell {
 	return cells[util.RANDOM.Intn(len(cells))];
 }

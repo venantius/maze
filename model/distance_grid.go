@@ -4,6 +4,12 @@ import (
 	"strconv"
 )
 
+type IDistanceGrid interface {
+	Grid
+
+	SetDistances(*Distances)
+}
+
 type distanceGrid struct {
 	*baseGrid
 

@@ -29,6 +29,9 @@ type Grid interface{
 	RowIter() <-chan []*Cell
 	CellIter() <-chan *Cell
 
+	// Misc
+	Deadends() []*Cell
+
 	// Printing the maze
 	contentsOf(*Cell) string
 	backgroundColorFor(*Cell) color.Color

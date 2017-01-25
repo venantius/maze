@@ -1,8 +1,8 @@
 package model
 
 import (
-	"math/rand"
 	"image/color"
+	"maze/util"
 )
 
 const NEWLINE_DELIMITER string = "\n";
@@ -86,8 +86,8 @@ func (g *baseGrid) GetCell(row int, column int) *Cell {
 
 // Retrieve a random cell from the grid.
 func (g *baseGrid) RandomCell() *Cell {
-	var row int = rand.Intn(g.rows);
-	var column int = rand.Intn(g.columns);
+	var row int = util.RANDOM.Intn(g.rows);
+	var column int = util.RANDOM.Intn(g.columns);
 	return g.grid[row][column];
 }
 
@@ -138,4 +138,17 @@ func (g *baseGrid) String() string {
 
 func (g *baseGrid) ToPNG(filename string, size int) {
 	gridToPNG(g, filename, size);
+}
+
+// Find all of the cells that are dead-ends in this grid and return them.
+func (g *baseGrid) Deadends() []*Cell {
+	var list []*Cell = []*Cell{};
+
+	for cell := range(g.CellIter()) {
+		if len(cell.Links()) == 1 {
+			list = append(list, cell);
+		}
+	}
+
+	return list;
 }

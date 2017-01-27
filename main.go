@@ -97,23 +97,15 @@ func TestHuntAndKillColored() {
 	TestAlgorithmColored(generator.HuntAndKill);
 }
 
+func TestRecursiveBacktracker() {
+	TestAlgorithm(generator.RecursiveBacktracker);
+}
+
+func TestRecursiveBacktrackerColored() {
+	TestAlgorithmColored(generator.RecursiveBacktracker);
+}
+
 func main() {
-	g := model.NewDistanceGrid(5, 5)
-
-	// Apply the Binary Tree maze generation algorithm
-	generator.BinaryTree(g)
-
-	// Pick a random starting cell, or any cell you want.
-	start := g.RandomCell();
-
-	// Calculate the shortest path between the starting cell and all other cells.
-	distances := start.Distances();
-	g.SetDistances(distances);
-
-	// Print to stdout
-	fmt.Println(g)
-
-	g.SetDistances(distances.PathTo(g.GetCell(g.GetRows() - 1, 0)));
-	fmt.Println(g);
+	TestRecursiveBacktrackerColored();
 }
 

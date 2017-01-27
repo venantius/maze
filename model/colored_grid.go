@@ -36,7 +36,7 @@ func (cg *coloredGrid) backgroundColorFor(c *Cell) color.Color {
 	var dark uint8 = uint8(util.Round(255 * intensity))
 	var bright uint8 = uint8(128 + util.Round(127*intensity))
 
-	return color.RGBA{bright, dark, bright, 0xff}
+	return color.RGBA{dark, bright, bright, 0xff}
 }
 
 func (cg *coloredGrid) ToPNG(filename string, size int) {

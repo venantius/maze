@@ -19,46 +19,39 @@ func NewBaseGrid(rows int, columns int) *baseGrid {
 	var g *baseGrid = &baseGrid{
 		rows: rows,
 		columns: columns,
-
-		grid: prepareGrid(rows, columns),
 	}
+	g.grid = g.prepareGrid();
 	g.configureCells()
 	return g
 }
 
 // Iterate through the grid and initialize a cell struct for each grid element.
-func prepareGrid(rows int, columns int) [][]*Cell {
-	grid := make([][]*Cell, rows)
+func (g *baseGrid) prepareGrid() [][]*Cell {
+	grid := make([][]*Cell, g.rows)
 	for i, _ := range(grid) {
-		column := make([]*Cell, columns)
-		grid[i] = column
-		for j, _ := range(column) {
-			c := NewCell(i, j);
-			grid[i][j] = c
+		grid[i] = make([]*Cell, g.columns);
+		for j, _ := range(grid[i]) {
+			grid[i][j] = NewCell(i, j);
 		}
 	}
-	return grid
+	return grid;
 }
 
 // This iterates through each cell in the grid, and for each cell attempts to set a north, east, south and west cell.
 // If the cell is at one of the grid's edges, it does not set the neighboring cell (leaving a nil pointer in place).
 func (g *baseGrid) configureCells() {
-	for i, row := range(g.grid) {
-		for j, _ := range(row) {
-			var c *Cell = g.grid[i][j];
-
-			if c.row - 1 >= 0 {
-				c.North = g.grid[c.row - 1][c.column]
-			}
-			if c.column + 1 < g.columns {
-				c.East = g.grid[c.row][c.column + 1]
-			}
-			if c.row + 1 < g.rows {
-				c.South = g.grid[c.row + 1][c.column]
-			}
-			if c.column - 1 >=0 {
-				c.West = g.grid[c.row][c.column - 1]
-			}
+	for c := range(g.CellIter()) {
+		if c.row - 1 >= 0 {
+			c.North = g.grid[c.row - 1][c.column]
+		}
+		if c.column + 1 < g.columns {
+			c.East = g.grid[c.row][c.column + 1]
+		}
+		if c.row + 1 < g.rows {
+			c.South = g.grid[c.row + 1][c.column]
+		}
+		if c.column - 1 >=0 {
+			c.West = g.grid[c.row][c.column - 1]
 		}
 	}
 
@@ -112,7 +105,9 @@ func (g *baseGrid) CellIter() <-chan *Cell {
 	go func () {
 		for _, row := range g.grid {
 			for _, cell := range row {
-				ch <- cell
+				if cell != nil {
+					ch <- cell
+				}
 			}
 		}
 		close(ch);

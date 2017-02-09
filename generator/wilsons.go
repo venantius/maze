@@ -6,7 +6,7 @@ import (
 )
 
 func Wilsons(g model.Grid) {
-	unvisited := []*model.Cell{};
+	unvisited := []model.Cell{};
 
 	// Mark all cells as unvisited.
 	for cell := range(g.CellIter()) {
@@ -23,7 +23,7 @@ func Wilsons(g model.Grid) {
 
 		// Pick a random starting cell.
 		cell := unvisited[util.RANDOM.Intn(len(unvisited))];
-		path := []*model.Cell{cell};
+		path := []model.Cell{cell};
 
 		// Keep building a path until the cell isn't an unvisited one.
 		for model.DoesSliceInclude(unvisited, cell) {

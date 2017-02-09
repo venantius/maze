@@ -23,21 +23,21 @@ func NewMaskedGrid(mask *mask) *maskedGrid {
 	return m;
 }
 
-func (m *maskedGrid) prepareGrid() [][]*Cell {
-	grid := make([][]*Cell, m.rows)
+func (m *maskedGrid) prepareGrid() [][]Cell {
+	grid := make([][]Cell, m.rows)
 	for i, _ := range(grid) {
-		column := make([]*Cell, m.columns)
+		column := make([]Cell, m.columns)
 		grid[i] = column
 		for j, _ := range(column) {
 			if m.mask.bits[i][j] == true {
-				grid[i][j] = NewCell(i, j);
+				grid[i][j] = NewBaseCell(i, j);
 			}
 		}
 	}
 	return grid;
 }
 
-func (m *maskedGrid) RandomCell() *Cell {
+func (m *maskedGrid) RandomCell() Cell {
 	row, col := m.mask.RandomCell();
 	return m.grid[row][col];
 }

@@ -8,7 +8,7 @@ func HuntAndKill(g model.Grid) {
 	current := g.RandomCell();
 
 	for current != nil {
-		unvisited_neighbors := []*model.Cell{};
+		unvisited_neighbors := []model.Cell{};
 
 		// In ruby: unvisited_neighbors = current.neighbors.select { |n| n.links.empty? }
 		for _, neighbor := range(current.Neighbors()) {
@@ -18,14 +18,14 @@ func HuntAndKill(g model.Grid) {
 		}
 
 		if model.SliceHasAny(unvisited_neighbors) {
-			var neighbor *model.Cell = model.RandomSliceElement(unvisited_neighbors);
+			var neighbor model.Cell = model.RandomSliceElement(unvisited_neighbors);
 			current.Link(neighbor, true);
 			current = neighbor;
 		} else {
 			current = nil;
 
 			for cell := range(g.CellIter()) {
-				var visited_neighbors []*model.Cell = []*model.Cell{};
+				var visited_neighbors []model.Cell = []model.Cell{};
 				for _, n := range(cell.Neighbors()) {
 					if model.SliceHasAny(n.Links()) {
 						visited_neighbors = append(visited_neighbors, n);
@@ -34,7 +34,7 @@ func HuntAndKill(g model.Grid) {
 
 				if len(cell.Links()) == 0 && model.SliceHasAny(visited_neighbors) {
 					current = cell;
-					var neighbor *model.Cell = model.RandomSliceElement(visited_neighbors);
+					var neighbor model.Cell = model.RandomSliceElement(visited_neighbors);
 					current.Link(neighbor, true);
 					break;
 				}

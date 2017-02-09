@@ -5,14 +5,14 @@ import (
 )
 
 func RecursiveBacktracker(g model.Grid) {
-	var start_at *model.Cell = g.RandomCell();
+	var start_at model.Cell = g.RandomCell();
 
-	var stack []*model.Cell = []*model.Cell{start_at};
+	var stack []model.Cell = []model.Cell{start_at};
 
 	for model.SliceHasAny(stack) {
 		current := stack[len(stack)-1]; // grab the last element
 
-		neighbors := []*model.Cell{};
+		neighbors := []model.Cell{};
 		for _, neighbor := range(current.Neighbors()) {
 			if len(neighbor.Links()) == 0 {
 				neighbors = append(neighbors, neighbor)

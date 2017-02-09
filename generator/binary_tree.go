@@ -7,13 +7,13 @@ import (
 
 func BinaryTree (g model.Grid) {
 	for c := range g.CellIter() {
-		neighbors := make([]*model.Cell, 0, 2);
+		neighbors := make([]model.Cell, 0, 2);
 
-		if c.North != nil {
-			neighbors = append(neighbors, c.North);
+		if c.North() != nil {
+			neighbors = append(neighbors, c.North());
 		}
-		if c.East != nil {
-			neighbors = append(neighbors, c.East);
+		if c.East() != nil {
+			neighbors = append(neighbors, c.East());
 		}
 
 		if len(neighbors) != 0 {

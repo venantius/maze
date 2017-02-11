@@ -5,12 +5,13 @@ import (
 	"image"
 	"image/color"
 	"maze/util"
+	"maze/model/cell"
 )
 
 type coloredGrid struct {
 	*baseGrid
 
-	distances *Distances
+	distances *cell.Distances
 	maximum   int
 }
 
@@ -22,13 +23,13 @@ func NewColoredGrid(rows int, columns int) *coloredGrid {
 	}
 }
 
-func (cg *coloredGrid) SetDistances(d *Distances) {
+func (cg *coloredGrid) SetDistances(d *cell.Distances) {
 	cg.distances = d
 	_, cg.maximum = d.Max()
 }
 
-func (cg *coloredGrid) backgroundColorFor(c Cell) color.Color {
-	distance, ok := cg.distances.cells[c]
+func (cg *coloredGrid) backgroundColorFor(c cell.Cell) color.Color {
+	distance, ok := cg.distances.Cells[c]
 	if !ok {
 		return nil
 	}
@@ -45,8 +46,8 @@ func (cg *coloredGrid) ToPNG(filename string, size int) {
 }
 
 // TODO: Return an ordered list of cells by distance.
-func (cg *coloredGrid) orderedDistances() []Cell {
-	var output []Cell = make([]Cell, 0)
+func (cg *coloredGrid) orderedDistances() []cell.Cell {
+	var output []cell.Cell = make([]cell.Cell, 0)
 
 	for cell := range cg.CellIter() {
 		output = append(output, cell)

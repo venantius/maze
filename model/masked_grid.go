@@ -1,5 +1,7 @@
 package model
 
+import "maze/model/cell"
+
 /*
 Chapter 6
  */
@@ -23,21 +25,21 @@ func NewMaskedGrid(mask *mask) *maskedGrid {
 	return m;
 }
 
-func (m *maskedGrid) prepareGrid() [][]Cell {
-	grid := make([][]Cell, m.rows)
+func (m *maskedGrid) prepareGrid() [][]cell.Cell {
+	grid := make([][]cell.Cell, m.rows)
 	for i, _ := range(grid) {
-		column := make([]Cell, m.columns)
+		column := make([]cell.Cell, m.columns)
 		grid[i] = column
 		for j, _ := range(column) {
 			if m.mask.bits[i][j] == true {
-				grid[i][j] = NewBaseCell(i, j);
+				grid[i][j] = cell.NewGridCell(i, j);
 			}
 		}
 	}
 	return grid;
 }
 
-func (m *maskedGrid) RandomCell() Cell {
+func (m *maskedGrid) RandomCell() cell.Cell {
 	row, col := m.mask.RandomCell();
 	return m.grid[row][col];
 }

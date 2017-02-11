@@ -8,6 +8,7 @@ import (
 	"maze/sketch"
 	"image/draw"
 	"github.com/llgcode/draw2d/draw2dimg"
+	"maze/model/cell"
 )
 
 const (
@@ -19,35 +20,35 @@ type Grid interface{
 	fmt.Stringer
 
 	// Initializer helpers
-	prepareGrid() [][]Cell
+	prepareGrid() [][]cell.Cell
 
 	// Getters
 	GetColumns() int
 	GetRows() int
 
-	RandomCell() Cell
+	RandomCell() cell.Cell
 	Size() int
 
 	// Iterators
-	RowIter() <-chan []Cell
-	CellIter() <-chan Cell
+	RowIter() <-chan []cell.Cell
+	CellIter() <-chan cell.Cell
 
 	// Misc
-	Deadends() []Cell
+	Deadends() []cell.Cell
 
 	// Printing the maze
-	contentsOf(Cell) string
-	backgroundColorFor(Cell) color.Color
+	contentsOf(cell.Cell) string
+	backgroundColorFor(cell.Cell) color.Color
 	ToPNG(filename string, size int)
 }
 
 // Iterate through the grid and initialize a cell struct for each grid element.
-func prepareGrid(g Grid) [][]Cell {
-	grid := make([][]Cell, g.GetRows())
+func prepareGrid(g Grid) [][]cell.Cell {
+	grid := make([][]cell.Cell, g.GetRows())
 	for i, _ := range(grid) {
-		grid[i] = make([]Cell, g.GetColumns());
+		grid[i] = make([]cell.Cell, g.GetColumns());
 		for j, _ := range(grid[i]) {
-			grid[i][j] = NewBaseCell(i, j);
+			grid[i][j] = cell.NewGridCell(i, j);
 		}
 	}
 	return grid;
@@ -68,14 +69,15 @@ func gridString(g Grid) string {
 		top := "|"
 		bottom := "+"
 
-		for _, cell := range row {
-			if cell == nil {
-				cell = NewBaseCell(-1, -1) // TODO: I think this is un-necessary
+		for _, c := range row {
+			c := c.(*cell.GridCell); // Lazy type cast.
+			if c == nil {
+				c = cell.NewGridCell(-1, -1) // TODO: I think this is un-necessary
 			}
 
-			body := fmt.Sprintf(" %v ", g.contentsOf(cell));
+			body := fmt.Sprintf(" %v ", g.contentsOf(c));
 			var east_boundary string
-			if cell.IsLinked(cell.East()) {
+			if c.IsLinked(c.East()) {
 				east_boundary = " "
 			} else {
 				east_boundary = "|"
@@ -85,7 +87,7 @@ func gridString(g Grid) string {
 
 			// three spaces below, too >> >...<
 			var south_boundary string
-			if cell.IsLinked(cell.South()) {
+			if c.IsLinked(c.South()) {
 				south_boundary = "   "
 			} else {
 				south_boundary = "---"
@@ -114,6 +116,8 @@ func gridToPNG(g Grid, filename string, cellSize int) {
 
 	for _, mode := range []int{BACKGROUNDS, WALLS} {
 		for c := range g.CellIter() {
+			fmt.Println(c);
+			c := c.(*cell.GridCell); // lazy type cast
 			drawGrid(mode, g, c, img, cellSize);
 		}
 	}
@@ -121,10 +125,10 @@ func gridToPNG(g Grid, filename string, cellSize int) {
 	draw2dimg.SaveToPngFile(filename, img);
 }
 
-func drawGrid(drawMode int, g Grid, c Cell, img draw.Image, cellSize int) {
-	x1 := c.Col() * cellSize;
+func drawGrid(drawMode int, g Grid, c *cell.GridCell, img draw.Image, cellSize int) {
+	x1 := c.Column() * cellSize;
 	y1 := c.Row() * cellSize;
-	x2 := (c.Col() + 1) * cellSize;
+	x2 := (c.Column() + 1) * cellSize;
 	y2 := (c.Row() + 1) * cellSize;
 
 	if drawMode == BACKGROUNDS {
@@ -139,6 +143,7 @@ func drawGrid(drawMode int, g Grid, c Cell, img draw.Image, cellSize int) {
 		if c.West() == nil {
 			sketch.DrawLine(x1, y1, x1, y2, img, color.Black);
 		}
+		fmt.Println(c, c.East());
 		if !c.IsLinked(c.East()) {
 			sketch.DrawLine(x2, y1, x2, y2, img, color.Black);
 		}

@@ -9,6 +9,6 @@ func main() {
 	grid := model.NewPolarGrid(8);
 
 	filename := "polar.png"
-	grid.ToPNG(filename, 10);
+	grid.ToPNG(filename, 20);
 	fmt.Printf("saved to %v\n", filename)
 }

@@ -3,11 +3,13 @@ package generator
 import (
 	"maze/model"
 	"maze/util"
+	"maze/model/cell"
 )
 
 func BinaryTree (g model.Grid) {
 	for c := range g.CellIter() {
-		neighbors := make([]model.Cell, 0, 2);
+		c := c.(*cell.GridCell)
+		neighbors := make([]cell.Cell, 0, 2);
 
 		if c.North() != nil {
 			neighbors = append(neighbors, c.North());

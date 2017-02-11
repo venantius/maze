@@ -1,8 +1,8 @@
-package model
+package cell
 
 type Distances struct {
-	root	Cell
-	cells	map[Cell]int
+	root  Cell
+	Cells map[Cell]int
 }
 
 func NewDistances(root Cell) *Distances {
@@ -10,14 +10,14 @@ func NewDistances(root Cell) *Distances {
 	c[root] = 0;
 	return &Distances {
 		root: root,
-		cells: c,
+		Cells: c,
 	}
 }
 
-func (d *Distances) Cells () <-chan Cell {
+func (d *Distances) CellIter() <-chan Cell {
 	ch := make(chan Cell, 1);
 	go func() {
-		for c, _ := range(d.cells) {
+		for c, _ := range(d.Cells) {
 			ch <- c
 		}
 		close(ch);
@@ -30,12 +30,12 @@ func (d *Distances) PathTo(goal Cell) *Distances {
 	current := goal;
 
 	breadcrumbs := NewDistances(current);
-	breadcrumbs.cells[current] = d.cells[current];
+	breadcrumbs.Cells[current] = d.Cells[current];
 
 	for current != d.root {
 		for _, neighbor := range(current.Links()) {
-			if d.cells[neighbor] < d.cells[current] {
-				breadcrumbs.cells[neighbor] = d.cells[neighbor];
+			if d.Cells[neighbor] < d.Cells[current] {
+				breadcrumbs.Cells[neighbor] = d.Cells[neighbor];
 				current = neighbor;
 			}
 		}
@@ -49,7 +49,7 @@ func (d *Distances) Max() (Cell, int) {
 	maxDistance := 0;
 	maxCell := d.root;
 
-	for cell, distance := range(d.cells) {
+	for cell, distance := range(d.Cells) {
 		if distance > maxDistance {
 			maxDistance = distance;
 			maxCell = cell;

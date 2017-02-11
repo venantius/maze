@@ -3,6 +3,7 @@ package generator
 import (
 	"maze/model"
 	"maze/util"
+	"maze/model/cell"
 )
 
 func max(x int, y int) int {
@@ -14,9 +15,10 @@ func max(x int, y int) int {
 
 func Sidewinder(g model.Grid) {
 	for row := range(g.RowIter()) {
-		run := make([]model.Cell, 0, 4);
+		run := make([]*cell.GridCell, 0, 4);
 
 		for _, c := range row {
+			c := c.(*cell.GridCell) // lazy
 			run = append(run, c);
 
 			var at_eastern_boundary bool = c.East() == nil;
@@ -29,7 +31,7 @@ func Sidewinder(g model.Grid) {
 				if member.North() != nil {
 					member.Link(member.North(), true);
 				}
-				run = make([]model.Cell, 0, max(g.GetRows(), g.GetColumns()));
+				run = make([]*cell.GridCell, 0, max(g.GetRows(), g.GetColumns()));
 			} else {
 				c.Link(c.East(), true);
 			}

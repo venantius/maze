@@ -2,18 +2,19 @@ package model
 
 import (
 	"strconv"
+	"maze/model/cell"
 )
 
 type IDistanceGrid interface {
 	Grid
 
-	SetDistances(*Distances)
+	SetDistances(*cell.Distances)
 }
 
 type distanceGrid struct {
 	*baseGrid
 
-	distances *Distances
+	distances *cell.Distances
 }
 
 func NewDistanceGrid(rows int, columns int) *distanceGrid {
@@ -24,15 +25,15 @@ func NewDistanceGrid(rows int, columns int) *distanceGrid {
 }
 
 // Set the distances for this grid.
-func (d *distanceGrid) SetDistances(dist *Distances) {
+func (d *distanceGrid) SetDistances(dist *cell.Distances) {
 	d.distances = dist;
 }
 
-func (d *distanceGrid) contentsOf (c Cell) string {
+func (d *distanceGrid) contentsOf (c cell.Cell) string {
 	if d.distances != nil {
-		_, ok := d.distances.cells[c];
+		_, ok := d.distances.Cells[c];
 		if ok {
-			return strconv.FormatInt(int64(d.distances.cells[c]), 36);
+			return strconv.FormatInt(int64(d.distances.Cells[c]), 36);
 		}
 	}
 	return d.baseGrid.contentsOf(c);

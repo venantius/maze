@@ -3,6 +3,7 @@ package model
 import (
 	"image/color"
 	"maze/util"
+	"maze/model/cell"
 )
 
 const NEWLINE_DELIMITER string = "\n";
@@ -11,7 +12,7 @@ type baseGrid struct {
 	rows 	int
 	columns int
 
-	grid 	[][]Cell
+	grid 	[][]cell.Cell
 }
 
 // Initialize a new grid and return a pointer to it.
@@ -26,7 +27,7 @@ func NewBaseGrid(rows int, columns int) *baseGrid {
 }
 
 // Iterate through the grid and initialize a cell struct for each grid element.
-func (g *baseGrid) prepareGrid() [][]Cell {
+func (g *baseGrid) prepareGrid() [][]cell.Cell {
 	return prepareGrid(g);
 }
 
@@ -34,17 +35,18 @@ func (g *baseGrid) prepareGrid() [][]Cell {
 // If the cell is at one of the grid's edges, it does not set the neighboring cell (leaving a nil pointer in place).
 func (g *baseGrid) configureCells() {
 	for c := range(g.CellIter()) {
+		c := c.(*cell.GridCell) // Lazy. Probably prone to breaking.
 		if c.Row() - 1 >= 0 {
-			c.SetNorth(g.grid[c.Row() - 1][c.Col()]);
+			c.SetNorth(g.grid[c.Row() - 1][c.Column()]);
 		}
-		if c.Col() + 1 < g.columns {
-			c.SetEast(g.grid[c.Row()][c.Col() + 1]);
+		if c.Column() + 1 < g.columns {
+			c.SetEast(g.grid[c.Row()][c.Column() + 1]);
 		}
 		if c.Row() + 1 < g.rows {
-			c.SetSouth(g.grid[c.Row() + 1][c.Col()]);
+			c.SetSouth(g.grid[c.Row() + 1][c.Column()]);
 		}
-		if c.Col() - 1 >=0 {
-			c.SetWest(g.grid[c.Row()][c.Col() - 1]);
+		if c.Column() - 1 >=0 {
+			c.SetWest(g.grid[c.Row()][c.Column() - 1]);
 		}
 	}
 
@@ -62,7 +64,7 @@ func (g *baseGrid) GetRows() int {
 
 // Retrieve a specific cell within the grid. If the request is for an out-of-bounds cell, returns nil.
 // NOTE: This latter capability may only exist to satisfy weird Ruby behavior.
-func (g *baseGrid) GetCell(row int, column int) Cell {
+func (g *baseGrid) GetCell(row int, column int) cell.Cell {
 	if (row >= 0 && row < g.rows) &&
 		(column >= 0 && column < g.columns) {
 		return g.grid[row][column]
@@ -71,7 +73,7 @@ func (g *baseGrid) GetCell(row int, column int) Cell {
 }
 
 // Retrieve a random cell from the grid.
-func (g *baseGrid) RandomCell() Cell {
+func (g *baseGrid) RandomCell() cell.Cell {
 	var row int = util.RANDOM.Intn(g.rows);
 	var column int = util.RANDOM.Intn(g.columns);
 	return g.grid[row][column];
@@ -82,8 +84,8 @@ func (g *baseGrid) Size() int {
 	return g.rows * g.columns;
 }
 
-func (g *baseGrid) RowIter() <-chan []Cell {
-	ch := make(chan []Cell);
+func (g *baseGrid) RowIter() <-chan []cell.Cell {
+	ch := make(chan []cell.Cell);
 	go func () {
 		for _, row := range g.grid {
 			ch <- row
@@ -93,8 +95,8 @@ func (g *baseGrid) RowIter() <-chan []Cell {
 	return ch;
 }
 
-func (g *baseGrid) CellIter() <-chan Cell {
-	ch := make(chan Cell, 1);
+func (g *baseGrid) CellIter() <-chan cell.Cell {
+	ch := make(chan cell.Cell, 1);
 	go func () {
 		for _, row := range g.grid {
 			for _, cell := range row {
@@ -112,11 +114,11 @@ func (g *baseGrid) CellIter() <-chan Cell {
 Satisfying the Grid interface.
  */
 
-func (g *baseGrid) contentsOf(c Cell) string {
+func (g *baseGrid) contentsOf(c cell.Cell) string {
 	return " ";
 }
 
-func (g *baseGrid) backgroundColorFor(Cell) color.Color {
+func (g *baseGrid) backgroundColorFor(cell.Cell) color.Color {
 	return nil;
 }
 
@@ -129,8 +131,8 @@ func (g *baseGrid) ToPNG(filename string, size int) {
 }
 
 // Find all of the cells that are dead-ends in this grid and return them.
-func (g *baseGrid) Deadends() []Cell {
-	var list []Cell = []Cell{};
+func (g *baseGrid) Deadends() []cell.Cell {
+	var list []cell.Cell = []cell.Cell{};
 
 	for cell := range(g.CellIter()) {
 		if len(cell.Links()) == 1 {

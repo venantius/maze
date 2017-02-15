@@ -1,8 +1,13 @@
 package cell
 
-import "maze/util"
+import (
+	"maze/util"
+	"fmt"
+)
 
 type Cell interface {
+	fmt.Stringer
+
 	Links() []Cell
 	Link(Cell, bool)
 	Unlink(Cell, bool)

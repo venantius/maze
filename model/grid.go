@@ -23,8 +23,9 @@ type Grid interface{
 	prepareGrid() [][]cell.Cell
 
 	// Getters
-	GetColumns() int
-	GetRows() int
+	Columns() int
+	Rows() int
+	Grid() [][]cell.Cell
 
 	RandomCell() cell.Cell
 	Size() int
@@ -44,9 +45,9 @@ type Grid interface{
 
 // Iterate through the grid and initialize a cell struct for each grid element.
 func prepareGrid(g Grid) [][]cell.Cell {
-	grid := make([][]cell.Cell, g.GetRows())
+	grid := make([][]cell.Cell, g.Rows())
 	for i, _ := range(grid) {
-		grid[i] = make([]cell.Cell, g.GetColumns());
+		grid[i] = make([]cell.Cell, g.Columns());
 		for j, _ := range(grid[i]) {
 			grid[i][j] = cell.NewGridCell(i, j);
 		}
@@ -59,7 +60,7 @@ func gridString(g Grid) string {
 	var output bytes.Buffer
 
 	output.WriteString("+");
-	for i := 0; i < g.GetColumns(); i++ {
+	for i := 0; i < g.Columns(); i++ {
 		output.WriteString("---+");
 
 	}
@@ -103,8 +104,8 @@ func gridString(g Grid) string {
 
 // PNG representation
 func gridToPNG(g Grid, filename string, cellSize int) {
-	imgWidth := cellSize * g.GetColumns();
-	imgHeight := cellSize * g.GetRows();
+	imgWidth := cellSize * g.Columns();
+	imgHeight := cellSize * g.Rows();
 
 	// background := color.RGBA{0xff, 0xff, 0xff, 0xff};
 	// wall := color.RGBA{0x44, 0x44, 0x44, 0xff};
@@ -143,7 +144,6 @@ func drawGrid(drawMode int, g Grid, c *cell.GridCell, img draw.Image, cellSize i
 		if c.West() == nil {
 			sketch.DrawLine(x1, y1, x1, y2, img, color.Black);
 		}
-		fmt.Println(c, c.East());
 		if !c.IsLinked(c.East()) {
 			sketch.DrawLine(x2, y1, x2, y2, img, color.Black);
 		}

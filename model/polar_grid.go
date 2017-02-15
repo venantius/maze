@@ -8,6 +8,7 @@ import (
 	"math"
 	"maze/util"
 	"maze/model/cell"
+	"image/draw"
 )
 
 /* Chapter 7
@@ -34,8 +35,10 @@ func NewPolarGrid(rows int) *polarGrid {
 	return p;
 }
 
+
+
 func (p *polarGrid) prepareGrid() [][]cell.Cell {
-	rows := make([][]cell.Cell, p.GetRows());
+	rows := make([][]cell.Cell, p.Rows());
 
 	rowHeight := 1.0 / float64(p.rows);
 	rows[0] = []cell.Cell{cell.NewPolarCell(0, 0)};
@@ -103,8 +106,27 @@ func (p *polarGrid) RandomCell() cell.Cell {
 	return p.grid[row][col];
 }
 
-func (p *polarGrid) ToPNG(filename string, cellSize int) {
-	var imgSize int = 2 * p.rows * cellSize;
+// NOTE: This doesn't belong here, move to PolarCell
+func (p *polarGrid) backgroundColorFor(c cell.Cell) color.Color {
+	return nil
+}
+
+func pointFromTheta(center int, inner_radius float64, theta float64) image.Point {
+	return image.Point{
+		X: center + int(inner_radius * math.Cos(theta)),
+		Y: center + int(inner_radius * math.Sin(theta)),
+	}
+}
+
+func (p *polarGrid) calculateTheta(c *cell.PolarCell) float64 {
+	return 2 * math.Pi / float64(len(p.grid[c.Row()]));
+}
+
+func (p *polarGrid) drawPolarBackground(c *cell.PolarCell, img draw.Image, center int, cellSize int, wall color.Color) {
+}
+
+func polarGridToPNG(p PolarGrid, filename string, cellSize int) {
+	var imgSize int = 2 * p.Rows() * cellSize;
 
 	// background := color.RGBA{0xff, 0xff, 0xff, 0xff};
 	wall := color.RGBA{0x44, 0x44, 0x44, 0xff};
@@ -119,9 +141,10 @@ func (p *polarGrid) ToPNG(filename string, cellSize int) {
 		// Skip the inner-most cell.
 		c := c.(*cell.PolarCell);
 		if c.Row() == 0 {
+			p.drawPolarBackground(c, img, center, cellSize, wall);
 			continue;
 		}
-		var theta float64 			= 2 * math.Pi / float64(len(p.grid[c.Row()]));
+		var theta float64 			= 2 * math.Pi / float64(len(p.Grid()[c.Row()]));
 		var inner_radius float64 	= float64(c.Row() * cellSize);
 		var outer_radius float64 	= float64((c.Row() + 1) * cellSize);
 		var theta_ccw float64 		= float64(c.Column()) * theta;
@@ -137,6 +160,7 @@ func (p *polarGrid) ToPNG(filename string, cellSize int) {
 		var dx int = center + int(outer_radius * math.Cos(theta_cw));
 		var dy int = center + int(outer_radius * math.Sin(theta_cw));
 
+		p.drawPolarBackground(c, img, center, cellSize, wall);
 		if (!c.IsLinked(c.Inward)) {
 			sketch.DrawLine(ax, ay, cx, cy, img, wall);
 		}
@@ -144,10 +168,14 @@ func (p *polarGrid) ToPNG(filename string, cellSize int) {
 			sketch.DrawLine(cx, cy, dx, dy, img, wall)
 		}
 
-		if c.Row() == p.rows - 1 {
+		if c.Row() == p.Rows() - 1 {
 			sketch.DrawLine(bx, by, dx, dy, img, wall);
 		}
 	}
 
 	draw2dimg.SaveToPngFile(filename, img);
+}
+
+func (p *polarGrid) ToPNG(filename string, cellSize int) {
+	polarGridToPNG(p, filename, cellSize);
 }

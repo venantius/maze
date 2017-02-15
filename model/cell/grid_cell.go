@@ -1,10 +1,5 @@
 package cell
 
-import (
-	"strconv"
-)
-
-
 type GridCell struct {
 	*baseCell
 
@@ -112,10 +107,3 @@ func (c *GridCell) Neighbors() []Cell {
 	return output;
 }
 
-// String representation.
-func (c *GridCell) String() string {
-	output := "{:row " + strconv.Itoa(c.row);
-	output += " :column " + strconv.Itoa(c.column);
-	output += "}"
-	return output
-}

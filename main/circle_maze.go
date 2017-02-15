@@ -8,8 +8,16 @@ import (
 )
 
 func main() {
-	grid := model.NewPolarGrid(15);
+	grid := model.NewColoredPolarGrid(15);
 	generator.Wilsons(grid);
+
+	random := grid.RandomCell();
+	distances := random.Distances();
+	new_start, _ := distances.Max(); // furthest cell from our random cell
+
+	new_distances := new_start.Distances();
+
+	grid.SetDistances(new_distances);
 	/*
 	c1 := grid.GetCell(1, 0);
 	c2 := grid.GetCell(1, 1);
@@ -20,6 +28,6 @@ func main() {
 	*/
 
 	filename := "circle_maze.png";
-	grid.ToPNG(filename, 12);
+	grid.ToPNG(filename, 15);
 	fmt.Printf("Saved to %v\n", filename);
 }

@@ -31,7 +31,7 @@ func Sidewinder(g model.Grid) {
 				if member.North() != nil {
 					member.Link(member.North(), true);
 				}
-				run = make([]*cell.GridCell, 0, max(g.GetRows(), g.GetColumns()));
+				run = make([]*cell.GridCell, 0, max(g.Rows(), g.Columns()));
 			} else {
 				c.Link(c.East(), true);
 			}

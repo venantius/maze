@@ -53,13 +53,17 @@ func (g *baseGrid) configureCells() {
 }
 
 // Returns how many integer columns this grid has
-func (g *baseGrid) GetColumns() int {
+func (g *baseGrid) Columns() int {
 	return g.columns;
 }
 
 // Returns how many integer rows this grid has
-func (g *baseGrid) GetRows() int {
+func (g *baseGrid) Rows() int {
 	return g.rows;
+}
+
+func (g *baseGrid) Grid() [][]cell.Cell {
+	return g.grid;
 }
 
 // Retrieve a specific cell within the grid. If the request is for an out-of-bounds cell, returns nil.

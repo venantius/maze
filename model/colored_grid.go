@@ -56,13 +56,13 @@ func (cg *coloredGrid) orderedDistances() []cell.Cell {
 }
 
 func ToGIF(g Grid, filename string, cellSize int) {
-	imgWidth := cellSize * g.GetColumns()
-	imgHeight := cellSize * g.GetRows()
+	imgWidth := cellSize * g.Columns()
+	imgHeight := cellSize * g.Rows()
 
 	var images []*image.Paletted
 	var delays []int
 
-	var steps int = g.GetRows() * g.GetColumns()
+	var steps int = g.Rows() * g.Columns()
 
 	// TODO: Figure out how we want to palette this.
 	// Possibly we generate all of the images first...and then?
